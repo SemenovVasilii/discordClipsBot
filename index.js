@@ -1,10 +1,9 @@
-require('dotenv').config()
+require('dotenv').config();
 const { Client, GatewayIntentBits, REST, Routes, Collection } = require('discord.js');
-const { handleAddClipMessage } = require('./botCommands/addClip')
+const { handleAddClipMessage } = require('./botCommands/addClip');
 const fs = require('fs');
 const path = require('path');
 const db = require('./db');
-
 
 const client = new Client({
     intents: [
@@ -12,7 +11,7 @@ const client = new Client({
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.MessageContent
     ]
-})
+});
 
 client.commands = new Collection();
 
@@ -58,19 +57,20 @@ client.on('interactionCreate', async interaction => {
                 await command.handleViewClip(interaction, db);
             } catch (error) {
                 console.error(error);
-                await interaction.reply({ content: 'There was an error while executing this interaction!', ephemeral: true });
+                if (!interaction.replied) {
+                    await interaction.reply({ content: 'There was an error while executing this interaction!', ephemeral: true });
+                }
             }
         }
     }
 });
-
 
 client.on('messageCreate', async message => {
     if (message.author.bot) return;
     await handleAddClipMessage(message);
 });
 
-client.login(process.env.BOT_TOKEN)
+client.login(process.env.BOT_TOKEN);
 
 const tempDir = path.join(__dirname, 'temp');
 if (!fs.existsSync(tempDir)) {

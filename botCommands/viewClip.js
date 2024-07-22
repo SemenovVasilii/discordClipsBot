@@ -33,15 +33,20 @@ async function viewClipsButtons(interaction) {
 async function viewClip(interaction) {
     const clipId = interaction.customId.split('_')[1];
     try {
+        await interaction.deferUpdate();
+
         const clip = await getClip(clipId);
         if (clip) {
-            await interaction.reply({ files: [{ attachment: clip.video_url }] });
+            await interaction.followUp({ files: [{ attachment: clip.video_url }] });
+            if (interaction.message.deletable) {
+                await interaction.message.delete();
+            }
         } else {
-            await interaction.reply('Clip not found.');
+            await interaction.followUp('Clip not found.');
         }
     } catch (error) {
         console.error(error);
-        await interaction.reply('An error occurred while fetching the clip.');
+        await interaction.followUp('An error occurred while fetching the clip.');
     }
 }
 
